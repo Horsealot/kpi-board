@@ -30,7 +30,9 @@ require('./models/Stats');
 
 cron.schedule('0 * * * * *', () => {
     const activeSchedulers = scheduleConverter.getActiveSchedulers();
-    statsCrawler.crawl(activeSchedulers).then(() => {
+    statsCrawler.crawl(activeSchedulers).then((promise) => {
+        return promise;
+    }).then(() => {
         console.log("Crawl finished");
     })
 });

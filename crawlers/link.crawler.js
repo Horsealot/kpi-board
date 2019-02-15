@@ -23,7 +23,7 @@ class LinkCrawler {
         let retries = 0;
         while (true) {
             try {
-                return await this.singleCrawl();
+                return this.singleCrawl();
             } catch (error) {
                 if (this.kpi.inError) {
                     // TODO Notify alert
@@ -49,6 +49,8 @@ class LinkCrawler {
         } catch(err) {
             throw new Error('Invalid resource');
         }
+        console.log(response.data);
+        console.log(this.kpi.source.target);
         const data = await httpService.extractData(response.data, this.kpi.source.target);
         if(data === null || data === undefined || !data.length) {
             throw new Error('Invalid target');
@@ -63,8 +65,9 @@ class LinkCrawler {
             stat.delta = stat.value - previousData.value;
         }
         this.kpi.lastUpdate = new Date();
-        await this.kpi.save();
-        return stat.save();
+        return this.kpi.save().then(() => {
+            return stat.save();
+        })
     };
 }
 

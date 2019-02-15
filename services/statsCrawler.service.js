@@ -5,17 +5,12 @@ const async = require('promise-async');
 const CrawlerFactory = require('./../crawlers/factory');
 
 const self = {
-    crawl: (schedulers) => {
+    crawl: async (schedulers) => {
         let processors = new Array();
-        Kpis.find({schedule: {$in: schedulers}}).then((kpis) => {
-            kpis.forEach((kpi) => {
-                processors.push((callback) => {
-                    self.crawlKpi(kpi);
-                    callback();
-                });
-            });
-        });
-        return async.parallel(processors);
+        const kpis = await Kpis.find({schedule: {$in: schedulers}});
+        for(let i = 0; i<kpis.length; i++) {
+            await self.crawlKpi(kpis[i]);
+        }
     },
     crawlKpi: (kpi) => {
         const crawler = CrawlerFactory.get(kpi);

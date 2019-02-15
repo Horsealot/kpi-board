@@ -10,23 +10,31 @@ const MixpanelFactory = require('../crawlers/mixpanel.crawler');
 describe('Crawler factory', () => {
     it('should return a LinkFactory', () => {
         expect(crawlerFactory.get({
-            type: 'link'
+            source: {
+                type: 'link'
+            }
         })).to.be.an.instanceof(LinkCrawler);
     });
     it('should return a GoogleAnalyticsFactory', () => {
         expect(crawlerFactory.get({
-            type: 'ga'
+            source: {
+                type: 'ga'
+            }
         })).to.be.an.instanceof(GoogleAnalyticsFactory);
     });
     it('should return a MixpanelFactory', () => {
         expect(crawlerFactory.get({
-            type: 'mixpanel'
+            source: {
+                type: 'mixpanel'
+            }
         })).to.be.an.instanceof(MixpanelFactory);
     });
     it('should throw an error for an unknown type', () => {
         try {
             crawlerFactory.get({
-                type: 'unknown'
+                source: {
+                    type: 'unknown'
+                }
             });
             expect(false).to.be.true;
         } catch(error) {

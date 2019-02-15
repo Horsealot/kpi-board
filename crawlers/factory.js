@@ -6,7 +6,7 @@ const MixpanelCrawler = require('./mixpanel.crawler');
 
 module.exports = {
     get: (kpi) => {
-        switch (kpi.type) {
+        switch (kpi.source.type) {
             case 'link':
                 return new LinkCrawler(kpi);
             case 'ga':
