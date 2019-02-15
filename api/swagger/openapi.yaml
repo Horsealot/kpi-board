@@ -1,0 +1,148 @@
+# To test with http://editor.swagger.io/
+openapi: 3.0.0
+info:
+  title: KPI Board API
+  version: 1.0.0
+servers:
+- url: http://localhost:5000/api
+  description: Dev server
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid
+    MissingParam:
+      description: A parameter is missing
+    NotFound:
+      description: Resource not found
+    BadRequest:
+      description: Bad request
+    UnauthorizedAccess:
+      description: User cannot access this resource
+  schemas:
+    KPI:
+      description: KPI schema
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The KPI ID.
+        name:
+          type: string
+          description: KPI's icon.
+        schedule:
+          type: string
+          description: KPI's refresh schedule.
+        type:
+          type: string
+          description: KPI's stat type.
+        owner:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: string
+        source:
+          type: object
+          properties:
+            type:
+              type: string
+            resource:
+              type: string
+            target:
+              type: string
+paths:
+  /kpis:
+    post:
+      summary: Create a new KPI
+      tags:
+      - KPI Command
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                refresh:
+                  type: string
+                type:
+                  type: string
+                  enum: ['number', 'percentage']
+                source:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                      enum: [link, ga, mixpanel]
+                    resource:
+                      type: string
+                    target:
+                      type: string
+              required:
+              - name, source
+      responses:
+        '200':
+          description: KPI created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KPI'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/MissingParam'
+    get:
+      summary: Get all user's KPI
+      tags:
+      - KPI Query
+      responses:
+        '200':
+          description: KPI created
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/MissingParam'
+  /kpis/:id:
+    post:
+      summary: Update a KPI
+      tags:
+      - KPI Command
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+              required:
+              - email
+      responses:
+        '200':
+          description: KPI created
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/MissingParam'
+    get:
+      summary: Get a KPI
+      tags:
+      - KPI Query
+      responses:
+        '200':
+          description: KPI created
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '422':
+          $ref: '#/components/responses/MissingParam'

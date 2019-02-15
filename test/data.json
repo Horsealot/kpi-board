@@ -1,0 +1,50 @@
+{
+  "kpi": {
+    "source": {
+      "type": "link",
+      "resource": "https://swagger.io/docs/specification/data-models/enums/",
+      "target": "h1"
+    },
+    "name": "KPI name",
+    "type": "number",
+    "schedule": "1d",
+    "owner": {
+      "type": "user",
+      "id": "2"
+    }
+  },
+  "stats": [
+    {
+      "value": 3,
+      "date": "2019-01-01 10:00:00"
+    },
+    {
+      "value": 3.02,
+      "date": "2019-01-01 11:00:00"
+    },
+    {
+      "value": 3.1,
+      "date": "2019-01-01 12:00:00"
+    },
+    {
+      "value": 3.5,
+      "date": "2019-01-01 13:00:00"
+    },
+    {
+      "value": 4,
+      "date": "2019-01-01 14:00:00"
+    },
+    {
+      "value": 4.01,
+      "date": "2019-01-01 15:00:00"
+    },
+    {
+      "value": 3.9,
+      "date": "2019-01-01 16:00:00"
+    },
+    {
+      "value": 4.12,
+      "date": "2019-01-01 17:00:00"
+    }
+  ]
+}
