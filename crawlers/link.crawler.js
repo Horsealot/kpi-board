@@ -16,27 +16,26 @@ class LinkCrawler {
     }
 
     async crawl() {
-        return this.crawlWithRetries();
+        await this.crawlWithRetries();
     };
 
     async crawlWithRetries() {
-        let retries = 0;
-        while (true) {
-            try {
-                return this.singleCrawl();
-            } catch (error) {
-                if (this.kpi.inError) {
-                    // TODO Notify alert
-                } else if (retries >= 2) {
+        this.singleCrawl()
+            .then().catch(() => {
+                return this.singleCrawl()
+            })
+            .then().catch(() => {
+                return this.singleCrawl()
+            })
+            .then().catch((error) => {
+                console.log(`ERROR Crawler for KPI[${this.kpi._id}] in error > ${error}`);
+                if(!this.kpi.inError) {
                     notificationProducer.kpiInError(this.kpi);
-                    this.kpi.inError = true;
-                    this.kpi.lastUpdate = new Date();
-                    await this.kpi.save();
-                    throw error;
                 }
-                retries++;
-            }
-        }
+                this.kpi.inError = true;
+                this.kpi.lastUpdate = new Date();
+                return this.kpi.save();
+        });
     }
 
     async singleCrawl() {
@@ -49,8 +48,6 @@ class LinkCrawler {
         } catch(err) {
             throw new Error('Invalid resource');
         }
-        console.log(response.data);
-        console.log(this.kpi.source.target);
         const data = await httpService.extractData(response.data, this.kpi.source.target);
         if(data === null || data === undefined || !data.length) {
             throw new Error('Invalid target');
@@ -61,9 +58,9 @@ class LinkCrawler {
             kpi: this.kpi._id
         });
         const previousData = await StatsModel.findOne({kpi: this.kpi._id}).sort({date: -1});
-        if(previousData) {
-            stat.delta = stat.value - previousData.value;
-        }
+        stat.updateFromPrevious(previousData);
+
+        this.kpi.inError = false;
         this.kpi.lastUpdate = new Date();
         return this.kpi.save().then(() => {
             return stat.save();

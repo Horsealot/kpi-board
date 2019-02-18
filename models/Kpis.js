@@ -33,7 +33,7 @@ const KpisSchema = new Schema({
     },
     type: {
         type: String,
-        enum: ['number', 'percentage'],
+        enum: ['number', 'percentage', 'sum'],
         required: true
     },
     schedule: {
@@ -74,6 +74,17 @@ KpisSchema.methods.update = function(data) {
                 this[attribute] = data[attribute];
             }
         }
+    }
+};
+
+KpisSchema.methods.updateFromPrevious = function(previous) {
+    if(this.type === 'sum') {
+        this.delta = this.value;
+        if(previous) {
+            this.value = previous.value + this.value;
+        }
+    } else if(previous) {
+        this.delta = this.value - previous.value;
     }
 };
 

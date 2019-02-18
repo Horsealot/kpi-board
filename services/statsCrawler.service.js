@@ -9,7 +9,7 @@ const self = {
         let processors = new Array();
         const kpis = await Kpis.find({schedule: {$in: schedulers}});
         for(let i = 0; i<kpis.length; i++) {
-            await self.crawlKpi(kpis[i]);
+            self.crawlKpi(kpis[i]);
         }
     },
     crawlKpi: (kpi) => {
