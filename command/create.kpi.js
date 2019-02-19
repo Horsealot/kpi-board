@@ -31,7 +31,11 @@ const main = async () => {
     await askForParam('KPI Type', 'type', 'number,percentage');
     await askForParam('KPI Schedule', 'schedule', '1s,15s,30s,1m,5m,15m,30m,1h,2h,12h,1d');
     await askForParam('KPI Source type', 'source.type', 'link,ga,mixpanel');
-    await askForParam('KPI Source resource', 'source.resource', 'String');
+    if(newKpi.source.type === 'link') {
+        await askForParam('KPI Source resource', 'source.resource', 'String');
+    } else if(newKpi.source.type === 'ga') {
+        await askForParam('KPI Google analytic View', 'source.view', 'String');
+    }
     await askForParam('KPI Source target', 'source.target', 'String');
     await askForParam('KPI Owner type', 'owner.type', 'user,squad');
     await askForParam('KPI Owner id', 'owner.id', 'String');
