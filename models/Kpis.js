@@ -25,7 +25,13 @@ const KpisSchema = new Schema({
         target: {
             type: String,
             required: true
-        }
+        },
+        view: {
+            type: String,
+            required: function() {
+                return this.source.type === 'ga';
+            }
+        },
     },
     name: {
         type: String,

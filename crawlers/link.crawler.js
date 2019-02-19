@@ -65,7 +65,7 @@ class LinkCrawler {
         this.kpi.lastUpdate = new Date();
         return this.kpi.save().then(() => {
             return stat.save();
-        })
+        });
     };
 }
 
