@@ -2,6 +2,7 @@
 
 class Filter {
     constructor(query) {
+        this.fresh = false;
         const filters = query ? query.split(',') : [];
         filters.forEach((filter) => {
             const queryFilter = filter.split('=');
@@ -26,11 +27,6 @@ class Filter {
             };
         }
         return query;
-    }
-
-    getFreshnessLimit() {
-        if(!this.freshness) return null;
-        return null;
     }
 
     serialize() {

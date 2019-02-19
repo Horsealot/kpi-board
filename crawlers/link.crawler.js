@@ -15,27 +15,28 @@ class LinkCrawler {
         this.kpi = kpi;
     }
 
-    async crawl() {
-        await this.crawlWithRetries();
+    crawl() {
+        return this.crawlWithRetries();
     };
 
     async crawlWithRetries() {
-        this.singleCrawl()
-            .then().catch(() => {
-                return this.singleCrawl()
-            })
-            .then().catch(() => {
-                return this.singleCrawl()
-            })
-            .then().catch((error) => {
-                console.log(`ERROR Crawler for KPI[${this.kpi._id}] in error > ${error}`);
-                if(!this.kpi.inError) {
+        let retries = 0;
+        while (true) {
+            try {
+                return await this.singleCrawl();
+            } catch (error) {
+                if (this.kpi.inError) {
+                    // TODO Notify alert
+                } else if (retries >= 2) {
                     notificationProducer.kpiInError(this.kpi);
+                    this.kpi.inError = true;
+                    this.kpi.lastUpdate = new Date();
+                    await this.kpi.save();
+                    throw error;
                 }
-                this.kpi.inError = true;
-                this.kpi.lastUpdate = new Date();
-                return this.kpi.save();
-        });
+                retries++;
+            }
+        }
     }
 
     async singleCrawl() {

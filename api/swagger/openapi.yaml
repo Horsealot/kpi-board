@@ -56,6 +56,59 @@ components:
               type: string
             target:
               type: string
+    KPIWithStats:
+      description: KPI schema
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The KPI ID.
+        name:
+          type: string
+          description: KPI's icon.
+        schedule:
+          type: string
+          description: KPI's refresh schedule.
+        type:
+          type: string
+          description: KPI's stat type.
+        owner:
+          type: object
+          properties:
+            type:
+              type: string
+            id:
+              type: string
+        source:
+          type: object
+          properties:
+            type:
+              type: string
+            resource:
+              type: string
+            target:
+              type: string
+        stats:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stat'
+    Stat:
+      description: Stat schema
+      type: object
+      properties:
+        _id:
+          type: string
+          description: The KPI ID.
+        value:
+          type: number
+          description: Stat value.
+        delta:
+          type: string
+          description: Delta with previous stat.
+        date:
+          type: string
+          format: date
+          description: Stat crawling date.
 paths:
   /kpis:
     post:
@@ -107,7 +160,16 @@ paths:
       - KPI Query
       responses:
         '200':
-          description: KPI created
+          description: KPIs returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kpis:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/KPIWithStats'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '422':
@@ -141,7 +203,14 @@ paths:
       - KPI Query
       responses:
         '200':
-          description: KPI created
+          description: KPI returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  kpi:
+                    $ref: '#/components/schemas/KPIWithStats'
         '401':
           $ref: '#/components/responses/UnauthorizedError'
         '422':

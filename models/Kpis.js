@@ -77,17 +77,6 @@ KpisSchema.methods.update = function(data) {
     }
 };
 
-KpisSchema.methods.updateFromPrevious = function(previous) {
-    if(this.type === 'sum') {
-        this.delta = this.value;
-        if(previous) {
-            this.value = previous.value + this.value;
-        }
-    } else if(previous) {
-        this.delta = this.value - previous.value;
-    }
-};
-
 KpisSchema.methods.toJSON = function() {
     return {
         id: this._id,

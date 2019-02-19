@@ -1,5 +1,4 @@
 'use strict';
-
 const LinkCrawler = require('./link.crawler');
 const GoogleAnalyticsCrawler = require('./ga.crawler');
 const MixpanelCrawler = require('./mixpanel.crawler');

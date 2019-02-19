@@ -2,6 +2,7 @@
 
 let chai = require('chai');
 let expect = chai.expect;
+let should = chai.should()
 const LinkCrawler = require('../crawlers/link.crawler');
 let sinon = require('sinon');
 let mongoose = require('mongoose');
@@ -15,8 +16,10 @@ const httpService = require('./../services/http.service');
 const notificationProducer = require('./../producers/notifications');
 
 describe('LinkCrawler', () => {
+    let stubSandbox;
     let kpiId;
     beforeEach((done) => { //Before each test we empty the database
+        stubSandbox = sinon.createSandbox();
         StatsModel.deleteMany({}, (err) => {
         }).then(() => {
             return KpisModel.deleteMany({});
@@ -39,21 +42,23 @@ describe('LinkCrawler', () => {
         })
     });
 
-    const httpServiceStub = sinon.stub(httpService, "get").returns(new Promise(function(resolve, reject) {
-        resolve({data: "<html><body><h1>1</h1></body></html>"});
-    }));
-    const notificationProducerStub = sinon.stub(notificationProducer, "kpiInError").returns();
+    afterEach(function () {
+        stubSandbox.restore();
+    });
     it('should crawl a link', (done) => {
+        const httpServiceStub = stubSandbox.stub(httpService, "get").returns(new Promise(function(resolve, reject) {
+            resolve({data: "<html><body><h1>1</h1></body></html>"});
+        }));
         KpisModel.findOne({name: 'KPI name'}).then((kpi) => {
             const linkCrawler = new LinkCrawler(kpi);
 
             linkCrawler.crawl().then((stat) => {
-                StatsModel.findOne({kpi: kpiId, _id: stat._id}).then((kpi) => {
-                    expect(kpi).to.be.a('object');
+                StatsModel.findOne({kpi: kpiId, _id: stat._id}).then((stat) => {
+                    expect(stat).to.be.a('object');
 
-                    kpi = kpi.toJSON();
-                    kpi.should.have.property('value').eql(1);
-                    kpi.should.not.have.property('delta');
+                    stat = stat.toJSON();
+                    stat.should.have.property('value').eql(1);
+                    stat.should.not.have.property('delta');
 
                     expect(httpServiceStub.calledOnce).to.be.true;
                     httpServiceStub.resetHistory();
@@ -63,6 +68,9 @@ describe('LinkCrawler', () => {
         });
     });
     it('should set the previous delta', (done) => {
+        const httpServiceStub = stubSandbox.stub(httpService, "get").returns(new Promise(function(resolve, reject) {
+            resolve({data: "<html><body><h1>1</h1></body></html>"});
+        }));
         const stat1 = new StatsModel({
             value: 10,
             date: new Date('2019-01-01 12:00:00'),
@@ -96,6 +104,10 @@ describe('LinkCrawler', () => {
         });
     });
     it('should trigger an error when the target is not found and retried 3 times', (done) => {
+        const httpServiceStub = stubSandbox.stub(httpService, "get").returns(new Promise(function(resolve, reject) {
+            resolve({data: "<html><body><h1>1</h1></body></html>"});
+        }));
+        const notificationProducerStub = stubSandbox.stub(notificationProducer, "kpiInError").returns();
         KpisModel.findOne({name: 'KPI name'}).then((kpi) => {
             kpi.source.target = '.unknown-class';
             const linkCrawler = new LinkCrawler(kpi);
@@ -104,6 +116,7 @@ describe('LinkCrawler', () => {
                 expect(false).to.be.true;
                 done();
             }).catch((err) => {
+                console.log(err);
                 expect(httpServiceStub.calledThrice).to.be.true;
                 expect(notificationProducerStub.calledOnce).to.be.true;
                 httpServiceStub.resetHistory();

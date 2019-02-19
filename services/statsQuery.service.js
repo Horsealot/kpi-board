@@ -4,16 +4,24 @@ require('./../models/Stats');
 const Kpis = mongoose.model('Kpis');
 const Stats = mongoose.model('Stats');
 
-const statsRedis = require('./../redis/stats.redis');
+const statsCache = require('../cache/stats.cache');
 
 const self = {
     get: (kpi, query) => {
-        return statsRedis.get(kpi, query).then((cache) => {
+        let cached = false;
+        return statsCache.get(kpi, query).then((cache) => {
             if(cache) {
-                return cache;
+                cached = true;
+                return new Promise(function(resolve, reject) {
+                    resolve(cache);
+                });
             }
             return Stats.find({...query.generateQuery(), kpi: kpi._id});
         }).then((stats) => {
+            if(!cached) {
+                statsCache.set(kpi, query, stats);
+                stats = stats.map((stat) => stat.toJSON())
+            }
             return {
                 kpi,
                 stats

@@ -6,16 +6,17 @@ const getAsync = promisify(client.get).bind(client);
 const self = {
     get: async (kpi, query) => {
         let cache = await getAsync(self.getKey(kpi, query));
-        if(cache) {
+        if(cache !== null && !query.fresh) {
             cache = JSON.parse(cache);
-            if(!query.getFreshness() || cache.date > query.getFreshness()) {
-                return cache.data;
-            }
+            return cache;
         }
         return null;
     },
     set: (kpi, query, stats) => {
-        client.set(self.getKey(kpi, query), JSON.stringify(stats));
+        client.set(self.getKey(kpi, query), JSON.stringify(stats), 'EX', 60);
+    },
+    del: (kpi, query, stats) => {
+        client.del(self.getKey(kpi, query), JSON.stringify(stats));
     },
     getKey: (kpi, query) => {
         return kpi._id + '-' + query.serialize();
