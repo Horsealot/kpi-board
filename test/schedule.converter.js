@@ -201,6 +201,18 @@ describe('schedule converter', () => {
         expect(scheduleConverter.getActiveSchedulers(testedDate)).to.deep.include('12h');
         expect(scheduleConverter.getActiveSchedulers(testedDate)).to.deep.include('1d');
     });
+    it('should work for 24 hours', () => {
+        const testedDate = new Date('01/01/2019 23:00:00');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.be.a('array');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.deep.include('1m');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.deep.include('5m');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.deep.include('15m');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.deep.include('30m');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.deep.include('1h');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.not.deep.include('2h');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.not.deep.include('12h');
+        expect(scheduleConverter.getActiveSchedulers(testedDate)).to.not.deep.include('1d');
+    });
     it('should work for random 3min', () => {
         const testedDate = new Date('01/01/2019 00:03:00');
         expect(scheduleConverter.getActiveSchedulers(testedDate))

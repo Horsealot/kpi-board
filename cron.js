@@ -16,9 +16,7 @@ const isTesting = process.env.NODE_ENV === 'test';
 /** Connect to the database */
 mongoose.connect(`${config.get('db.host')}/${config.get('db.db_name')}`, { useNewUrlParser: true });
 
-if(!isProduction && !isTesting) {
-    mongoose.set('debug', true);
-}
+mongoose.set('debug', false);
 
 // Start rabbitmq producers
 const Producer = require('./producers/index');
@@ -29,6 +27,8 @@ require('./models/Kpis');
 require('./models/Stats');
 
 cron.schedule('0 * * * * *', () => {
+    console.log("Start crawling > " + new Date());
+
     const activeSchedulers = scheduleConverter.getActiveSchedulers();
     statsCrawler.crawl(activeSchedulers).then((promise) => {
         return promise;
