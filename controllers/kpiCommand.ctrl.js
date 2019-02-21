@@ -4,22 +4,25 @@ const Kpis = mongoose.model('Kpis');
 
 const self = {
     postKpi: async (req, res) => {
-        const owner = {
+        const loggedOwner = {
             type: req.payload.type,
             id: req.payload.id,
         };
-        if (!owner.type || !owner.id) {
+        if (!loggedOwner.type || !loggedOwner.id) {
             return res.sendStatus(403);
         }
 
-        const {body: {source, name, type, schedule, postCalculation}} = req;
+        const {body: {source, name, type, schedule, postCalculation, owner}} = req;
         if (!source || !name || !type || !schedule) {
             return res.sendStatus(422);
         }
 
         let kpi = new Kpis({
-            owner, source, name, type, schedule, postCalculation
+            source, name, type, schedule, postCalculation
         });
+        if(owner) {
+            kpi.owner = owner;
+        }
 
         kpi.save().then((kpi) => {
             return res.json({kpi: kpi.toJSON()});
@@ -43,7 +46,7 @@ const self = {
             if (!kpi) {
                 return res.sendStatus(404);
             }
-            if (kpi.owner.type !== owner.type || kpi.owner.id !== owner.id) {
+            if (kpi.owner.id && kpi.owner.type && (kpi.owner.type !== owner.type || kpi.owner.id !== owner.id)) {
                 return res.sendStatus(403);
             }
             kpi.update({

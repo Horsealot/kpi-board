@@ -20,7 +20,7 @@ const self = {
 
         try {
             const statsPromises = new Array();
-            const kpis = await Kpis.find({'owner.type': owner.type, 'owner.id': owner.id});
+            const kpis = await Kpis.find({$or: [{'owner.type': owner.type, 'owner.id': owner.id}, {'owner.type': {$exists: false}, 'owner.id': {$exists: false}}]});
             kpis.forEach((kpi) => {
                 statsPromises.push((callback) => {
                     StatsService.get(kpi, queryFilter).then((data) => {
@@ -55,7 +55,7 @@ const self = {
         Kpis.findOne({_id: id}).then((kpi) => {
             if(!kpi) {
                 return res.sendStatus(404);
-            } else if(kpi.owner.id !== owner.id || kpi.owner.type !== owner.type) {
+            } else if(kpi.owner.id && kpi.owner.type && (kpi.owner.id !== owner.id || kpi.owner.type !== owner.type)) {
                 return res.sendStatus(403);
             }
             StatsService.get(kpi, queryFilter).then((data) => {

@@ -53,12 +53,10 @@ const KpisSchema = new Schema({
     },
     owner: {
         type: {
-            type: String,
-            required: true
+            type: String
         },
         id: {
-            type: String,
-            required: true
+            type: String
         }
     },
     postCalculation: String,

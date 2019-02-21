@@ -120,8 +120,32 @@ describe('Kpi', () => {
                     done();
                 });
         });
-        it('should not accept a POST with wrong source type', (done) => {
+        it('should not accept a POST with wrong type', (done) => {
             let body = {
+                source: {
+                    type: 'link',
+                    resource: 'https://swagger.io/docs/specification/data-models/enums/',
+                    target: 'a',
+                },
+                name: 'KPI name',
+                type: 'badtype',
+                schedule: '1d'
+            };
+            chai.request(server)
+                .post('/api/kpis')
+                .set('Authorization', 'Bearer ' + generateTestJwt({type: 'user', id: '2'}))
+                .send(body)
+                .end((err, res) => {
+                    res.should.have.status(400);
+                    res.body.error.should.be.eql('Kpis validation failed: type: `badtype` is not a valid enum value for path `type`.');
+                    done();
+                });
+        });
+        it('should not accept a POST with owner type', (done) => {
+            let body = {
+                owner: {
+                    type: 'user'
+                },
                 source: {
                     type: 'link',
                     resource: 'https://swagger.io/docs/specification/data-models/enums/',
@@ -163,8 +187,9 @@ describe('Kpi', () => {
                     done();
                 });
         });
-        it('should accept a POST', (done) => {
+        it('should accept a POST with an owner', (done) => {
             let body = {
+                owner: {type: 'user', id: '2'},
                 source: {
                     type: 'link',
                     resource: 'https://swagger.io/docs/specification/data-models/enums/',
@@ -210,6 +235,57 @@ describe('Kpi', () => {
                         kpi.owner.should.be.a('object');
                         kpi.owner.should.have.property('type').eql('user');
                         kpi.owner.should.have.property('id').eql('2');
+                        done();
+                    });
+                });
+        });
+        it('should accept a POST wihout an owner', (done) => {
+            let body = {
+                source: {
+                    type: 'link',
+                    resource: 'https://swagger.io/docs/specification/data-models/enums/',
+                    target: 'a',
+                },
+                name: 'KPI name',
+                type: 'number',
+                schedule: '1d'
+            };
+            chai.request(server)
+                .post('/api/kpis')
+                .set('Authorization', 'Bearer ' + generateTestJwt({type: 'user', id: '2'}))
+                .send(body)
+                .end((err, res) => {
+                    res.should.have.status(200);
+                    res.body.should.be.a('object');
+                    res.body.kpi.should.be.a('object');
+                    res.body.kpi.should.have.property('id');
+                    res.body.kpi.should.have.property('name').eql(body.name);
+                    res.body.kpi.should.have.property('type').eql(body.type);
+                    res.body.kpi.should.have.property('schedule').eql(body.schedule);
+                    res.body.kpi.should.have.property('source');
+                    res.body.kpi.source.should.be.a('object');
+                    res.body.kpi.source.should.have.property('type').eql(body.source.type);
+                    res.body.kpi.source.should.have.property('resource').eql(body.source.resource);
+                    res.body.kpi.source.should.have.property('target').eql(body.source.target);
+                    res.body.kpi.should.have.property('owner');
+                    res.body.kpi.owner.should.be.a('object');
+                    expect(res.body.kpi.owner.type).to.be.undefined;
+                    expect(res.body.kpi.owner.id).to.be.undefined;
+                    KpisModel.findOne({_id: res.body.kpi.id}).then((kpi) => {
+                        expect(kpi).to.be.a('object');
+                        kpi = kpi.toJSON();
+                        kpi.should.have.property('name').eql(body.name);
+                        kpi.should.have.property('type').eql(body.type);
+                        kpi.should.have.property('schedule').eql(body.schedule);
+                        kpi.should.have.property('source');
+                        kpi.source.should.be.a('object');
+                        kpi.source.should.have.property('type').eql(body.source.type);
+                        kpi.source.should.have.property('resource').eql(body.source.resource);
+                        kpi.source.should.have.property('target').eql(body.source.target);
+                        kpi.should.have.property('owner');
+                        kpi.owner.should.be.a('object');
+                        expect(kpi.owner.type).to.be.undefined;
+                        expect(kpi.owner.id).to.be.undefined;
                         done();
                     });
                 });

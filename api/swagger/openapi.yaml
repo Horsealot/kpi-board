@@ -129,6 +129,13 @@ paths:
                 type:
                   type: string
                   enum: ['number', 'percentage']
+                owner:
+                  type: object
+                  properties:
+                    type:
+                      type: string
+                    id:
+                      type: string
                 source:
                   type: object
                   properties:
