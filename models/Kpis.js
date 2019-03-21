@@ -51,6 +51,10 @@ const KpisSchema = new Schema({
         type: Boolean,
         default: false
     },
+    crawlable: {
+        type: Boolean,
+        default: false
+    },
     owner: {
         type: {
             type: String
@@ -90,7 +94,8 @@ KpisSchema.methods.toJSON = function() {
         type: this.type,
         schedule: this.schedule,
         lastUpdate: this.lastUpdate,
-        inError: this.inError
+        inError: this.inError,
+        crawlable: this.crawlable
     }
 };
 

@@ -5,6 +5,8 @@ const Kpis = mongoose.model('Kpis');
 const Stats = mongoose.model('Stats');
 
 const statsCache = require('../cache/stats.cache');
+const gaService = require('../services/ga.service');
+const GetterFactory = require('./../getters/factory');
 
 const self = {
     get: (kpi, query) => {
@@ -16,7 +18,17 @@ const self = {
                     resolve(cache);
                 });
             }
-            return Stats.find({...query.generateQuery(), kpi: kpi._id});
+
+            const getter = GetterFactory.get(kpi, query);
+            return getter.get();
+            // crawler.crawl();
+            // if(kpi.source.crawlable) {
+            //
+            // } else if(kpi.source.type === 'ga') {
+            //
+            //     return gaService.getData(kpi);
+            // }
+            // return Stats.find({...query.generateQuery(), kpi: kpi._id});
         }).then((stats) => {
             if(!cached) {
                 statsCache.set(kpi, query, stats);
@@ -26,6 +38,8 @@ const self = {
                 kpi,
                 stats
             };
+        }).catch((err) => {
+            error: err
         });
     }
 };

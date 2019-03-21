@@ -1,5 +1,7 @@
 'use strict';
 
+const moment = require("moment");
+
 class Filter {
     constructor(query) {
         this.fresh = false;
@@ -31,6 +33,13 @@ class Filter {
 
     serialize() {
         return `startDate:${this.startDate},endDate:${this.endDate}`;
+    }
+
+    toGoogleAnalytic() {
+        return {
+            'start-date': moment(this.startDate).format("YYYY-MM-DD"),
+            'end-date': moment(this.endDate).format("YYYY-MM-DD"),
+        };
     }
 }
 

@@ -20,18 +20,11 @@ const self = {
 
         try {
             const statsPromises = new Array();
-            const kpis = await Kpis.find({$or: [{'owner.type': owner.type, 'owner.id': owner.id}, {'owner.type': {$exists: false}, 'owner.id': {$exists: false}}]});
-            kpis.forEach((kpi) => {
-                statsPromises.push((callback) => {
-                    StatsService.get(kpi, queryFilter).then((data) => {
-                        response.push(data);
-                        callback();
-                    });
-                });
+            let kpis = await Kpis.find({$or: [{'owner.type': owner.type, 'owner.id': owner.id}, {'owner.type': {$exists: false}, 'owner.id': {$exists: false}}]});
+            kpis = kpis.map((kpi) => {
+                return {kpi: kpi}
             });
-            async.parallel(statsPromises, (err, results) => {
-                return res.json({kpis: response});
-            });
+            return res.json({kpis});
         } catch (err) {
             console.log(err);
             return res.sendStatus(400);

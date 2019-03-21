@@ -7,7 +7,7 @@ const CrawlerFactory = require('./../crawlers/factory');
 const self = {
     crawl: async (schedulers) => {
         let processors = new Array();
-        const kpis = await Kpis.find({schedule: {$in: schedulers}});
+        const kpis = await Kpis.find({crawled: true, schedule: {$in: schedulers}});
         for(let i = 0; i<kpis.length; i++) {
             self.crawlKpi(kpis[i]);
         }
